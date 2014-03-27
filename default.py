@@ -70,16 +70,14 @@ def FILME(url, name, page=None, type=None, search=None):
     for i in lst:
         main = res.urls['main']
         url = main + str(i[0])
-
-        addDir(i[1],url, 9, i[3])
-    
+        playFilm(i[1], url, i[3], 'play_video', False)
     page += 1
     mode = 8;
     if search != None:
 	mode = 9
     if page < last_page:
         t = browser.get_thumb('next')
-        addNext('Next',page, 1, t)
+        addNext('Next',page, 8, t)
     
     xbmc.executebuiltin("Container.SetViewMode(500)") 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
@@ -136,19 +134,6 @@ def SEZON(url, name):
     xbmc.executebuiltin("Container.SetViewMode(550)") 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
-def FILM(url, name):
-    import simplejson as json
-    movie = json.dumps({"name": name, "url": url})
-    __settings__.setSetting('last_movie', movie)
-    browser = vplayBrowser.ListResources()
-    lst = browser.getFilme(url)
-    for i in lst[0:1]:
-        url = res.urls['browse']
-        url = url + str(i[0])
-        addLink(name, url, i[2], 'play_video', False)
-    xbmc.executebuiltin("Container.SetViewMode(550)") 
-    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
-
 def FAVORITES(url, name):
     import simplejson as json
     browser = vplayBrowser.ListResources()
@@ -175,6 +160,14 @@ def addDir(name,url,mode,iconimage, len = 0):
     liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)
     liz.setInfo( type="Video", infoLabels={ "Title": name } )
     ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=u,listitem=liz,isFolder=True, totalItems = len)
+    return ok
+
+def playFilm(name,url,iconimage,action, watched):
+    ok=True
+    url=sys.argv[0]+"?url="+urllib.quote_plus(url)+"&action="+ str(action) + "&name="+urllib.quote_plus(name)
+    liz=xbmcgui.ListItem(name, iconImage="DefaultFolder.png", thumbnailImage=iconimage)          
+    liz.setInfo( type="Video", infoLabels={ "Title": name } )
+    ok=xbmcplugin.addDirectoryItem(handle=int(sys.argv[1]),url=url,listitem=liz)
     return ok
 
 def addLink(name,url,iconimage,action, watched):
@@ -260,9 +253,7 @@ def startPlugin():
         FAVORITES(url, name)
     elif mode==8 and action==None:
         FILME(url, name)
-    elif mode==9 and action==None:
-        FILM(url, name)
-    elif mode==10:
+    elif mode==9:
 	if url.isdigit():
 		FILME(url, "Search", __settings__.getSetting( "search" )); 
 	else:

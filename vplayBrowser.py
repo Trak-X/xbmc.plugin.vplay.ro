@@ -130,11 +130,20 @@ class ListResources:
         lst = [];
         ret = self.http_lib._get(url, cookie)
         if ret['httpcode'] == 200:
+            if type == None or type == "Filme":
+                lst = self.scrap.scrapFilme(ret['httpmsg'])
+            elif type == "Favorite":
+                lst = self.scrap.scrapFavorite(ret['httpmsg'])
+            elif type == "Search":
+                lst = self.scrap.scrapSearch(ret['httpmsg'])
+		if len(lst) < 1 and int(page) == 1:
+		    self.__search__.noResult();
+            else:
                 lst = self.scrap.scrapFilme(ret['httpmsg'])
         elif ret['httpcode'] == 301:
             self.__login__.login()
         else:
-            raise IOError('Could not get movies list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
+            raise IOError('Could not get movie list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
 
         return lst
 
