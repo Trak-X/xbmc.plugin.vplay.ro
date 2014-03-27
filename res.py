@@ -1,9 +1,10 @@
 urls =  {
-            'main'      : 'http://vplay.ro',
-            'dino'      : 'http://vplay.ro/play/dinosaur.do',
-            'sub'       : 'http://vplay.ro/play/subs.do',
-            'browse'    : 'http://vplay.ro',
-            'login'     : 'http://vplay.ro/in/',
-            'search'     : 'http://vplay.ro/coll/g/action?s=',
-            'serials'   : 'http://vplay.ro/coll/g/action/',
+            'main'      : 'http://vplus.ro',
+            'dino'      : 'http://vplus.ro/play/dinosaur.do',
+            'sub'       : 'http://vplus.ro/play/subs.do',
+            'browse'    : 'http://vplus.ro',
+            'login'     : 'http://vplus.ro/in/',
+            'search'     : 'http://vplus.ro/shows/?s=',
+            'serials'   : 'http://vplus.ro/shows/',
+            'filme'     : 'http://vplus.ro/movies/',
         }

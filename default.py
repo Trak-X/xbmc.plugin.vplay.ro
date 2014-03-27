@@ -4,26 +4,27 @@ import res, time
 
 # plugin constants
 __version__ = "1.0"
-__plugin__ = "Vplay" + __version__
+__plugin__ = "Vplus" + __version__
 __url__ = "www.xbmc.com"
 
 # xbmc hooks
-__settings__ = xbmcaddon.Addon(id='plugin.video.vplay')
+__settings__ = xbmcaddon.Addon(id='plugin.video.vplus')
 __language__ = __settings__.getLocalizedString
 __dbg__ = __settings__.getSetting("debug") == "true"
 
 
 def OPTIONS():
     re = vplayBrowser.ListResources();
-    #addDir('Favorite', res.urls['serials'], 4, re.get_thumb('favorite'), 6)
-    addDir('Favorite','http://vplay.ro/colls/' + __settings__.getSetting( "username" ), 7, re.get_thumb('favorite'), 0)
-    addDir('Seriale', res.urls['serials'], 1, re.get_thumb('seriale'), 30)
+    #addDir('Favorite', res.urls['shows'], 4, re.get_thumb('favorite'), 6)
+    addDir('Favorite','http://vplus.ro/shows/' + __settings__.getSetting( "username" ), 7, re.get_thumb('favorite'), 0)
+    addDir('Seriale TV', res.urls['serials'], 1, re.get_thumb('serials'), 30)
+    addDir('Filme', res.urls['filme'], 8, re.get_thumb('filme'), 30)
     if __settings__.getSetting('last_movie'):
     	import simplejson as json
     	movie = json.loads(__settings__.getSetting('last_movie'))
         addDir(movie['name'], movie['url'], 6, re.get_thumb('last'), 0)    
-    addDir('Search','http://vplay.ro/serials/?s', 5, re.get_thumb('search-icon'), 0)    
-    addLink('Login','http://vplay.ro/login/', re.get_thumb('login') , 'login', True)
+    addDir('Cauta Seriale','http://vplus.ro/shows/?s', 5, re.get_thumb('search-icon'), 0)    
+    addLink('Login','http://vplus.ro/login/', re.get_thumb('login') , 'login', True)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
 def SERIAL(page=None, type=None, search=None):
@@ -55,6 +56,33 @@ def SERIAL(page=None, type=None, search=None):
     xbmc.executebuiltin("Container.SetViewMode(500)") 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
+def FILME(url, name, page=None, type=None, search=None):
+    if page == None:
+        page = 1
+    try:
+        page = int(page)
+    except:
+        page = 1
+        
+    browser = vplayBrowser.ListResources()
+    lst = browser.getFilme(page=page, type=type, search=search)
+    last_page = browser.getLastPage()
+    for i in lst:
+        main = res.urls['main']
+        url = main + str(i[0])
+
+        addDir(i[1],url, 9, i[3])
+    
+    page += 1
+    mode = 8;
+    if search != None:
+	mode = 9
+    if page < last_page:
+        t = browser.get_thumb('next')
+        addNext('Next',page, 1, t)
+    
+    xbmc.executebuiltin("Container.SetViewMode(500)") 
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
 def get_params():
     param=[]
@@ -105,6 +133,19 @@ def SEZON(url, name):
         url = url + str(i[0])
         addDir(i[-1],url, 3, '')
     
+    xbmc.executebuiltin("Container.SetViewMode(550)") 
+    xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
+
+def FILM(url, name):
+    import simplejson as json
+    movie = json.dumps({"name": name, "url": url})
+    __settings__.setSetting('last_movie', movie)
+    browser = vplayBrowser.ListResources()
+    lst = browser.getFilme(url)
+    for i in lst[0:1]:
+        url = res.urls['browse']
+        url = url + str(i[0])
+        addLink(name, url, i[2], 'play_video', False)
     xbmc.executebuiltin("Container.SetViewMode(550)") 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
@@ -190,20 +231,20 @@ def startPlugin():
 
     if mode==None or url==None or len(url)<1:
         if action == None:
-            #print "mode 0"
+            print "mode 0"
             OPTIONS()
             #__login__.login(login=True)
     elif mode==1 and action==None:
-        #print "mode 1"
+        print "mode 1"
         SERIAL(url, "Categorii")
     elif mode==2 and action==None:
-        #print "mode 2"
+        print "mode 2"
         SEZON(url, name)
     elif mode==3 and action==None:
-        #print "mode 3"
+        print "mode 3"
         VIDEOLINKS(url,name)
     elif mode==4 and action==None:
-        #print "mode 3"
+        print "mode 3"
         SERIAL(url, "Favorite")
     elif mode==5:
 	if url.isdigit():
@@ -213,10 +254,21 @@ def startPlugin():
 		if __search__.getResponse() != None:
             		SERIAL(None, "Search", __search__.getResponse() )
     elif mode==6 and action==None:
-        #print "mode 6"
+        print "mode 6"
         SEZON(url, name)
     elif mode==7 and action==None:
         FAVORITES(url, name)
+    elif mode==8 and action==None:
+        FILME(url, name)
+    elif mode==9 and action==None:
+        FILM(url, name)
+    elif mode==10:
+	if url.isdigit():
+		FILME(url, "Search", __settings__.getSetting( "search" )); 
+	else:
+        	__search__.search()
+		if __search__.getResponse() != None:
+            		FILME(None, "Search", __search__.getResponse() )
         
     if action == 'play_video':
         details = __link__.getRealLink(url)

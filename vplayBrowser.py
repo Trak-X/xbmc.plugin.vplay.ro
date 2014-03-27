@@ -105,8 +105,60 @@ class ListResources:
         elif ret['httpcode'] == 301:
             self.__login__.login()
         else:
-            raise IOError('Could not get serial list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
+            raise IOError('Could not get seasons list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
         return lst
+
+# movies
+    def getFilme(self, page=None, type=None, search=None):
+        self.session = self._get_session()
+        if not self.session:
+            self.__login__.login()
+            self.session = self._get_session()
+        
+        if page == None:    
+            url = res.urls['filme']
+        else:
+            try:
+                int(page)
+	        url = res.urls['filme'] + "/" + str(page) + "/"
+            except:
+                url = res.urls['filme']
+	if type == "Search":
+            url = res.urls['search'] + search
+
+        cookie = str(self.session)
+        lst = [];
+        ret = self.http_lib._get(url, cookie)
+        if ret['httpcode'] == 200:
+                lst = self.scrap.scrapFilme(ret['httpmsg'])
+        elif ret['httpcode'] == 301:
+            self.__login__.login()
+        else:
+            raise IOError('Could not get movies list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
+
+        return lst
+
+
+    def getFilm(self, url):
+        self.session = self._get_session()
+        if not self.session:
+            self.__login__.login()
+            self.session = self._get_session()
+            
+        cookie =  str(self.session)
+        ret = self.http_lib._get(url, cookie)
+        lst = [];
+        if ret['httpcode'] == 200:
+            lst = self.scrap.scrapFilme(ret['httpmsg'])
+        elif ret['httpcode'] == 301:
+            self.__login__.login()
+        else:
+            raise IOError('Could not get film list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
+        
+        return lst
+
+
+#end movies
         
         
     def getEpisodes(self, url):
@@ -166,7 +218,7 @@ class linkResolution:
         #    self.subs_dir = cur_dir
         #except:
         tmp_dir = xbmc.translatePath( "special://temp")
-        subs = os.path.join(tmp_dir, 'plugin.video.vplay_subtitles')
+        subs = os.path.join(tmp_dir, 'plugin.video.vplus_subtitles')
         if os.path.isdir(subs) is False:
             os.makedirs(subs)
         self.subs_dir = subs
@@ -285,12 +337,10 @@ class linkResolution:
         ret = self.http_lib._get(url, cookie)
         
         if ret['httpcode'] == 301 or ret['httpcode'] == 302:
-            __login__.login()
             self._get_session()
             ret = self.http_lib._get(url, cookie)
         
-        if ret['httpcode'] != 200:
-            raise Exception('failed to get episode: %s' % (ret['httpcode']))
+
             
         ep_id = self.scrap.scrapEpisodeId(url)
         if len(ep_id) != 1:
