@@ -19,11 +19,8 @@ def OPTIONS():
     addDir('Favorite','http://vplus.ro/shows/' + __settings__.getSetting( "username" ), 7, re.get_thumb('favorite'), 0)
     addDir('Seriale TV', res.urls['serials'], 1, re.get_thumb('serials'), 30)
     addDir('Filme', res.urls['filme'], 8, re.get_thumb('filme'), 30)
-    if __settings__.getSetting('last_movie'):
-    	import simplejson as json
-    	movie = json.loads(__settings__.getSetting('last_movie'))
-        addDir(movie['name'], movie['url'], 6, re.get_thumb('last'), 0)    
     addDir('Cauta Seriale','http://vplus.ro/shows/?s', 5, re.get_thumb('search-icon'), 0)    
+    addDir('Cauta Filme','http://vplus.ro/movies/?s', 9, re.get_thumb('search-icon'), 0) 
     addLink('Login','http://vplus.ro/login/', re.get_thumb('login') , 'login', True)
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
@@ -56,7 +53,7 @@ def SERIAL(page=None, type=None, search=None):
     xbmc.executebuiltin("Container.SetViewMode(500)") 
     xbmcplugin.endOfDirectory(int(sys.argv[1]), cacheToDisc=False)
 
-def FILME(url, name, page=None, type=None, search=None):
+def FILME(page=None, type=None, search=None):
     if page == None:
         page = 1
     try:
@@ -224,20 +221,20 @@ def startPlugin():
 
     if mode==None or url==None or len(url)<1:
         if action == None:
-            print "mode 0"
+            #print "mode 0"
             OPTIONS()
             #__login__.login(login=True)
     elif mode==1 and action==None:
-        print "mode 1"
+        #print "mode 1"
         SERIAL(url, "Categorii")
     elif mode==2 and action==None:
-        print "mode 2"
+        #print "mode 2"
         SEZON(url, name)
     elif mode==3 and action==None:
-        print "mode 3"
+        #print "mode 3"
         VIDEOLINKS(url,name)
     elif mode==4 and action==None:
-        print "mode 3"
+        #print "mode 3"
         SERIAL(url, "Favorite")
     elif mode==5:
 	if url.isdigit():
@@ -247,12 +244,12 @@ def startPlugin():
 		if __search__.getResponse() != None:
             		SERIAL(None, "Search", __search__.getResponse() )
     elif mode==6 and action==None:
-        print "mode 6"
+        #print "mode 6"
         SEZON(url, name)
     elif mode==7 and action==None:
         FAVORITES(url, name)
     elif mode==8 and action==None:
-        FILME(url, name)
+        FILME(url, "Categorii")
     elif mode==9:
 	if url.isdigit():
 		FILME(url, "Search", __settings__.getSetting( "search" )); 

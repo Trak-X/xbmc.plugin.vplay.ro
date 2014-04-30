@@ -9,6 +9,13 @@ Simple Json Plugin is required. Grab the updated version from here: http://mirro
 Changelog
 ==========
 
+30.04.2014
+----------
+
+Fix next page in Movies section<br/>
+Fix Movie Search
+
+
 27.03.2014
 ----------
 

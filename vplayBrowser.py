@@ -89,6 +89,46 @@ class ListResources:
             raise IOError('Could not get serial list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
 
         return lst
+
+# movies
+    def getFilme(self, page=None, type=None, search=None):
+        self.session = self._get_session()
+        if not self.session:
+            self.__login__.login()
+            self.session = self._get_session()
+        
+        if page == None:    
+            url = res.urls['filme']
+        else:
+            try:
+                int(page)
+	        url = res.urls['filme'] + "/" + str(page) + "/"
+            except:
+                url = res.urls['filme']
+	if type == "Search":
+            url = res.urls['searchf'] + search
+
+        cookie = str(self.session)
+        lst = [];
+        ret = self.http_lib._get(url, cookie)
+        if ret['httpcode'] == 200:
+            if type == None or type == "Categorii":
+                lst = self.scrap.scrapFilme(ret['httpmsg'])
+            elif type == "Favorite":
+                lst = self.scrap.scrapFavorite(ret['httpmsg'])
+            elif type == "Search":
+                lst = self.scrap.scrapSearchf(ret['httpmsg'])
+		if len(lst) < 1 and int(page) == 1:
+		    self.__search__.noResult();
+            else:
+                lst = self.scrap.scrapFilme(ret['httpmsg'])
+        elif ret['httpcode'] == 301:
+            self.__login__.login()
+        else:
+            raise IOError('Could not get movie list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
+
+        return lst
+#end movies
         
     def getSesons(self, url):
         self.session = self._get_session()
@@ -107,67 +147,6 @@ class ListResources:
         else:
             raise IOError('Could not get seasons list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
         return lst
-
-# movies
-    def getFilme(self, page=None, type=None, search=None):
-        self.session = self._get_session()
-        if not self.session:
-            self.__login__.login()
-            self.session = self._get_session()
-        
-        if page == None:    
-            url = res.urls['filme']
-        else:
-            try:
-                int(page)
-	        url = res.urls['filme'] + "/" + str(page) + "/"
-            except:
-                url = res.urls['filme']
-	if type == "Search":
-            url = res.urls['search'] + search
-
-        cookie = str(self.session)
-        lst = [];
-        ret = self.http_lib._get(url, cookie)
-        if ret['httpcode'] == 200:
-            if type == None or type == "Filme":
-                lst = self.scrap.scrapFilme(ret['httpmsg'])
-            elif type == "Favorite":
-                lst = self.scrap.scrapFavorite(ret['httpmsg'])
-            elif type == "Search":
-                lst = self.scrap.scrapSearch(ret['httpmsg'])
-		if len(lst) < 1 and int(page) == 1:
-		    self.__search__.noResult();
-            else:
-                lst = self.scrap.scrapFilme(ret['httpmsg'])
-        elif ret['httpcode'] == 301:
-            self.__login__.login()
-        else:
-            raise IOError('Could not get movie list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
-
-        return lst
-
-
-    def getFilm(self, url):
-        self.session = self._get_session()
-        if not self.session:
-            self.__login__.login()
-            self.session = self._get_session()
-            
-        cookie =  str(self.session)
-        ret = self.http_lib._get(url, cookie)
-        lst = [];
-        if ret['httpcode'] == 200:
-            lst = self.scrap.scrapFilme(ret['httpmsg'])
-        elif ret['httpcode'] == 301:
-            self.__login__.login()
-        else:
-            raise IOError('Could not get film list: %s --> %s' % (ret['httpcode'], ret['httpmsg']))
-        
-        return lst
-
-
-#end movies
         
         
     def getEpisodes(self, url):

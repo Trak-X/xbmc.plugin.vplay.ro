@@ -26,6 +26,10 @@ class Scrap:
     def scrapSearch(self, page):
         match=re.compile('<a href="(/show/.+?/)" title="(.+?)"><span class="coll_poster" title="(.+?)" style="background-image:url\((.+?)\);"></span>').findall(page)
         return match
+
+    def scrapSearchf(self, page):
+        match=re.compile('<a href="(.+?)" title="(.+?)"><span class="movie_poster" title="(.+?)" style="background-image:url\((.+?)\);"></span>').findall(page)
+        return match
         
     def scrapSerials(self, page):
         print "Scrap Seriale"
@@ -43,7 +47,6 @@ class Scrap:
             return [];
         page = page[pos:]
         match=re.compile('<a href="(.+?)" title="(.+?)"><span class="movie_poster" title="(.+?)" style="background-image:url\((.+?)\);"></span>').findall(page);
-        print match[0]
         return match
 
         
